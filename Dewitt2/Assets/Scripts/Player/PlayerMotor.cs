@@ -26,8 +26,7 @@ public class PlayerMotor : MonoBehaviour
 
 		moveVector *= m_walkSpeed;
 		ApplyGravity(ref moveVector);
-		if (m_characterController)
-			m_characterController.Move(moveVector * Time.deltaTime);
+		Move(moveVector, true);
     }
 
 	public void Jump()
@@ -46,4 +45,13 @@ public class PlayerMotor : MonoBehaviour
 				m_verticalSpeed = -1.0f;
 		}
     }
+
+	private void Move(Vector3 moveVector, bool local)
+	{
+		if (local)
+			moveVector = transform.TransformVector(moveVector);
+
+		if (m_characterController)
+			m_characterController.Move(moveVector * Time.deltaTime);
+	}
 }
