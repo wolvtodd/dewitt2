@@ -1,14 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum Direction
+{
+	kLeft = -1,
+	kRight = 1,
+
+	kMax,
+}
+
 public class Player : MonoBehaviour
 {
 	private PlayerMotor m_motor;
+	private Direction m_direction;
 
 	void Start ()
 	{
 		m_motor = gameObject.AddComponent<PlayerMotor>() as PlayerMotor;
-	}
+		m_direction = transform.localEulerAngles.y % 360 == 0 ? Direction.kRight : Direction.kLeft;
+    }
 	
 	void Update ()
 	{
@@ -19,7 +29,9 @@ public class Player : MonoBehaviour
 	void UpdateMovement()
 	{
 		Vector3 moveVector = getMovementInput();
-		if (m_motor)
+
+		UpdateDirection(moveVector);
+        if (m_motor)
 			m_motor.UpdateMovement(ref moveVector);
 	}
 
@@ -42,5 +54,27 @@ public class Player : MonoBehaviour
 			if (m_motor)
 				m_motor.Jump();
 		}
+	}
+
+	void UpdateDirection(Vector3 moveVector)
+	{
+		switch (m_direction)
+		{
+			case Direction.kLeft:
+				if (moveVector.x > 0.0f)
+					m_direction = Direction.kRight;
+				break;
+			case Direction.kRight:
+				if (moveVector.x < 0.0f)
+					m_direction = Direction.kLeft;
+				break;
+			default:
+				break;
+		}
+	}
+
+	public Direction getDirection()
+	{
+		return m_direction;
 	}
 }
