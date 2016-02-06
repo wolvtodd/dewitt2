@@ -9,7 +9,7 @@ public class PlayerMotor : MonoBehaviour
 	private float m_verticalSpeed;
 	private float m_jumpSpeed;
 	private float m_gravity;
-
+	
 	private void Start ()
 	{
 		m_characterController = gameObject.AddComponent<CharacterController>() as CharacterController;
@@ -25,8 +25,10 @@ public class PlayerMotor : MonoBehaviour
 			moveVector.Normalize();
 
 		moveVector *= m_walkSpeed;
+		moveVector = transform.TransformVector(moveVector);
+
 		ApplyGravity(ref moveVector);
-		Move(moveVector, true);
+		Move(moveVector);
     }
 
 	public void Jump()
@@ -46,11 +48,8 @@ public class PlayerMotor : MonoBehaviour
 		}
     }
 
-	private void Move(Vector3 moveVector, bool local)
+	private void Move(Vector3 moveVector)
 	{
-		if (local)
-			moveVector = transform.TransformVector(moveVector);
-
 		if (m_characterController)
 			m_characterController.Move(moveVector * Time.deltaTime);
 	}
