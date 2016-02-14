@@ -33,7 +33,8 @@ public class PlayerMotor : MonoBehaviour
 
 	public void Jump()
 	{
-		m_verticalSpeed = m_jumpSpeed;
+		if (m_characterController && m_characterController.isGrounded)
+			m_verticalSpeed = m_jumpSpeed;
 	}
 
 	private void ApplyGravity(ref Vector3 moveVector)
