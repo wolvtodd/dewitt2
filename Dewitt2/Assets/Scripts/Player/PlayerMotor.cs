@@ -8,15 +8,23 @@ public class PlayerMotor : MonoBehaviour
 	private float m_walkSpeed;
 	private float m_verticalSpeed;
 	private float m_jumpSpeed;
+	private float m_climbSpeed;
 	private float m_gravity;
-	
+
+	private bool m_canClimbLadder;
+	private bool m_isOnLadder;
+
 	private void Start ()
 	{
 		m_characterController = gameObject.AddComponent<CharacterController>() as CharacterController;
 
-		m_walkSpeed = 14.0f;
-		m_gravity	= 98.0f;
-		m_jumpSpeed = 28.0f;
+		m_walkSpeed		= 14.0f;
+		m_climbSpeed	= 10.0f;
+		m_gravity		= 98.0f;
+		m_jumpSpeed		= 28.0f;
+
+		m_canClimbLadder = false;
+		m_isOnLadder = false;
     }
 
 	public void UpdateMovement(ref Vector3 moveVector)
@@ -27,14 +35,33 @@ public class PlayerMotor : MonoBehaviour
 		moveVector *= m_walkSpeed;
 		moveVector = transform.TransformVector(moveVector);
 
-		ApplyGravity(ref moveVector);
+		if (!m_isOnLadder)
+			ApplyGravity(ref moveVector);
+
 		Move(moveVector);
     }
 
+	public void UpdateClimb(ref Vector3 climbVector)
+	{
+		if (climbVector.magnitude > 1)
+			climbVector.Normalize();
+
+		climbVector *= m_climbSpeed;
+		climbVector = transform.TransformVector(climbVector);
+
+		Move(climbVector);
+
+		if (m_characterController && m_characterController.isGrounded)
+			m_isOnLadder = false;
+	}
+
 	public void Jump()
 	{
-		if (m_characterController && m_characterController.isGrounded)
+		if (canJump())
+		{
 			m_verticalSpeed = m_jumpSpeed;
+			m_isOnLadder = false;
+		}
 	}
 
 	private void ApplyGravity(ref Vector3 moveVector)
@@ -53,5 +80,31 @@ public class PlayerMotor : MonoBehaviour
 	{
 		if (m_characterController)
 			m_characterController.Move(moveVector * Time.deltaTime);
+	}
+
+	private bool canJump()
+	{
+		return	(m_characterController && m_characterController.isGrounded) ||
+				m_isOnLadder;
+    }
+
+	public void setCanClimbLadder(bool canClimb)
+	{
+		m_canClimbLadder = canClimb;
+	}
+
+	public bool canClimbLadder()
+	{
+		return m_canClimbLadder;
+	}
+
+	public void setIsOnLadder(bool isOnLadder)
+	{
+		m_isOnLadder = isOnLadder;
+	}
+
+	public bool isOnLadder()
+	{
+		return m_isOnLadder;
 	}
 }

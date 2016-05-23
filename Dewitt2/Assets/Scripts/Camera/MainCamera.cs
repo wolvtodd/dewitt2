@@ -8,10 +8,7 @@ public class MainCamera : MonoBehaviour
 
 	void Start()
 	{
-		GameObject targetLookAtObj = GameObject.Find("TargetLookAt");
-		if (targetLookAtObj != null)
-			m_targetLookAt = targetLookAtObj.transform;
-
+		InitTargetLookAt();
 		SetCameraRelativePosition(new Vector3(-15.0f, 5.0f, -15.0f));
     }
 
@@ -23,6 +20,13 @@ public class MainCamera : MonoBehaviour
 									m_targetLookAt.TransformDirection(m_cameraRelativePosition);
 			transform.LookAt(m_targetLookAt);
 		}
+	}
+
+	void InitTargetLookAt()
+	{
+		GameObject targetLookAtObj = GameObject.Find("TargetLookAt");
+		if (targetLookAtObj != null)
+			m_targetLookAt = targetLookAtObj.transform;
 	}
 
 	public void SetCameraRelativePosition(Vector3 position)
