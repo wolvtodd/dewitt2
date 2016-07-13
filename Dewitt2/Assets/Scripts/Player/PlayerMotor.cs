@@ -4,25 +4,23 @@ using System.Collections;
 public class PlayerMotor : MonoBehaviour
 {
 	private CharacterController m_characterController;
-	
-	private float m_walkSpeed;
-	private float m_verticalSpeed;
-	private float m_jumpSpeed;
-	private float m_climbSpeed;
-	private float m_gravity;
 
+	#region Exposed
+	[SerializeField] private float m_walkSpeed = 14.0f;
+	[SerializeField] private float m_jumpSpeed = 28.0f;
+	[SerializeField] private float m_climbSpeed = 10.0f;
+	[SerializeField] private float m_gravity = 98.0f;
+	#endregion
+
+	#region Field
+	private float m_verticalSpeed;
 	private bool m_canClimbLadder;
 	private bool m_isOnLadder;
+	#endregion
 
 	private void Start ()
 	{
 		m_characterController = gameObject.AddComponent<CharacterController>() as CharacterController;
-
-		m_walkSpeed		= 14.0f;
-		m_climbSpeed	= 10.0f;
-		m_gravity		= 98.0f;
-		m_jumpSpeed		= 28.0f;
-
 		m_canClimbLadder = false;
 		m_isOnLadder = false;
     }

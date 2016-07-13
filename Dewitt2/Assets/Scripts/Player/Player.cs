@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
 {
 	private PlayerMotor m_motor;
 	private Direction m_direction;
+	private bool m_isMoving;
 
 	void Start ()
 	{
@@ -29,7 +30,7 @@ public class Player : MonoBehaviour
 
 	void UpdateMovement()
 	{
-		Vector3 moveVector = getMovementInput();
+		Vector3 moveVector = GetMovementInput();
 
 		UpdateDirection(moveVector);
         if (m_motor && !m_motor.isOnLadder())
@@ -40,7 +41,7 @@ public class Player : MonoBehaviour
 	{
 		if (m_motor && m_motor.canClimbLadder())
 		{
-			Vector3 climbVector = getClimbInput();
+			Vector3 climbVector = GetClimbInput();
 			if (climbVector.y != 0.0f)
 			{
 				if (m_motor)
@@ -53,19 +54,23 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	Vector3 getMovementInput()
+	Vector3 GetMovementInput()
 	{
 		var deadZone = 0.1f;
 		Vector3 moveVector = Vector3.zero;
 		moveVector.x = Input.GetAxis("Horizontal");
 
 		if (Mathf.Abs(moveVector.x) > deadZone)
-			return moveVector;
+		{
+			m_isMoving = true;
+            return moveVector;
+		}
 
+		m_isMoving = false;
 		return Vector3.zero;
 	}
 
-	Vector3 getClimbInput()
+	Vector3 GetClimbInput()
 	{
 		var deadZone = 0.3f;
 		Vector3 moveVector = Vector3.zero;
@@ -76,6 +81,11 @@ public class Player : MonoBehaviour
 
 		return Vector3.zero;
 	}
+
+	public bool IsPlayerMoving()
+	{
+		return m_isMoving;
+    }
 
 	void UpdateJumpInput()
 	{
