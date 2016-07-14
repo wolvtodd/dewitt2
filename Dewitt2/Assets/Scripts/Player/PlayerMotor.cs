@@ -6,26 +6,31 @@ public class PlayerMotor : MonoBehaviour
 	private CharacterController m_characterController;
 
 	#region Exposed
+	[SerializeField] private GameObject m_model = null;
+
 	[SerializeField] private float m_walkSpeed = 14.0f;
 	[SerializeField] private float m_jumpSpeed = 28.0f;
 	[SerializeField] private float m_climbSpeed = 10.0f;
 	[SerializeField] private float m_gravity = 98.0f;
+	[SerializeField] private float m_rotateSpeed = 1.0f;
 	#endregion
 
 	#region Field
 	private float m_verticalSpeed;
 	private bool m_canClimbLadder;
 	private bool m_isOnLadder;
+
+	private float m_directionRotateTime;
 	#endregion
 
 	private void Start ()
 	{
-		m_characterController = gameObject.AddComponent<CharacterController>() as CharacterController;
+		m_characterController = gameObject.AddComponent<CharacterController>();
 		m_canClimbLadder = false;
 		m_isOnLadder = false;
     }
 
-	public void UpdateMovement(ref Vector3 moveVector)
+	public void UpdateMovement(ref Vector3 moveVector, float dt)
 	{
 		if (moveVector.magnitude > 1)
 			moveVector.Normalize();
@@ -34,12 +39,28 @@ public class PlayerMotor : MonoBehaviour
 		moveVector = transform.TransformVector(moveVector);
 
 		if (!m_isOnLadder)
-			ApplyGravity(ref moveVector);
+			ApplyGravity(ref moveVector, dt);
 
-		Move(moveVector);
+		Move(moveVector, dt);
     }
 
-	public void UpdateClimb(ref Vector3 climbVector)
+	public void UpdateDirectionRotate(Direction direction, bool dirChanged, float dt)
+	{
+		if (dirChanged)
+			m_directionRotateTime = 0.0f;
+		
+		if (m_model)
+		{
+			//TODO: ease in and out
+			m_directionRotateTime = Mathf.Clamp01(m_directionRotateTime + m_rotateSpeed * dt);
+			Vector3 to = direction == Direction.kRight ? Vector3.forward : Vector3.back;
+			Quaternion desiredRotation = Quaternion.LookRotation(to);
+			Quaternion resultRotation = Quaternion.Slerp(m_model.transform.localRotation, desiredRotation, m_directionRotateTime);
+			m_model.transform.localRotation = resultRotation;
+		}
+	}
+
+	public void UpdateClimb(ref Vector3 climbVector, float dt)
 	{
 		if (climbVector.magnitude > 1)
 			climbVector.Normalize();
@@ -47,7 +68,7 @@ public class PlayerMotor : MonoBehaviour
 		climbVector *= m_climbSpeed;
 		climbVector = transform.TransformVector(climbVector);
 
-		Move(climbVector);
+		Move(climbVector, dt);
 
 		if (m_characterController && m_characterController.isGrounded)
 			m_isOnLadder = false;
@@ -62,9 +83,9 @@ public class PlayerMotor : MonoBehaviour
 		}
 	}
 
-	private void ApplyGravity(ref Vector3 moveVector)
+	private void ApplyGravity(ref Vector3 moveVector, float dt)
 	{
-		m_verticalSpeed -= m_gravity * Time.deltaTime;
+		m_verticalSpeed -= m_gravity * dt;
 		moveVector.y = m_verticalSpeed;
 
 		if (m_characterController && m_characterController.isGrounded)
@@ -74,10 +95,10 @@ public class PlayerMotor : MonoBehaviour
 		}
     }
 
-	private void Move(Vector3 moveVector)
+	private void Move(Vector3 moveVector, float dt)
 	{
 		if (m_characterController)
-			m_characterController.Move(moveVector * Time.deltaTime);
+			m_characterController.Move(moveVector * dt);
 	}
 
 	private bool canJump()

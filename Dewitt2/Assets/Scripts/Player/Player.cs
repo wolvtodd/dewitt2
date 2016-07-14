@@ -17,27 +17,29 @@ public class Player : MonoBehaviour
 
 	void Start ()
 	{
-		m_motor = gameObject.AddComponent<PlayerMotor>() as PlayerMotor;
+		m_motor = gameObject.GetComponent<PlayerMotor>();
 		m_direction = transform.localEulerAngles.y % 360 == 0 ? Direction.kRight : Direction.kLeft;
     }
 	
 	void Update ()
 	{
-		UpdateMovement();
-		UpdateClimbLadder();
+		float dt = Time.deltaTime;
+
+		UpdateMovement(dt);
+		UpdateClimbLadder(dt);
 		UpdateJumpInput();
     }
 
-	void UpdateMovement()
+	void UpdateMovement(float dt)
 	{
 		Vector3 moveVector = GetMovementInput();
 
-		UpdateDirection(moveVector);
+		UpdateDirection(moveVector, dt);
         if (m_motor && !m_motor.isOnLadder())
-			m_motor.UpdateMovement(ref moveVector);
+			m_motor.UpdateMovement(ref moveVector, dt);
 	}
 
-	void UpdateClimbLadder()
+	void UpdateClimbLadder(float dt)
 	{
 		if (m_motor && m_motor.canClimbLadder())
 		{
@@ -47,7 +49,7 @@ public class Player : MonoBehaviour
 				if (m_motor)
 				{
 					m_motor.setIsOnLadder(true);
-					m_motor.UpdateClimb(ref climbVector);
+					m_motor.UpdateClimb(ref climbVector, dt);
 					return;
 				}
 			}
@@ -96,22 +98,32 @@ public class Player : MonoBehaviour
 		}
 	}
 
-	void UpdateDirection(Vector3 moveVector)
+	void UpdateDirection(Vector3 moveVector, float dt)
 	{
+		bool dirChanged = false;
 		switch (m_direction)
 		{
 			case Direction.kLeft:
 				if (moveVector.x > 0.0f)
+				{
 					m_direction = Direction.kRight;
+					dirChanged = true;
+                }
 				break;
 			case Direction.kRight:
 				if (moveVector.x < 0.0f)
+				{
 					m_direction = Direction.kLeft;
+					dirChanged = true;
+                }
 				break;
 			default:
 				break;
 		}
-	}
+
+		if (m_motor)
+			m_motor.UpdateDirectionRotate(m_direction, dirChanged, dt);
+    }
 
 	public Direction getDirection()
 	{

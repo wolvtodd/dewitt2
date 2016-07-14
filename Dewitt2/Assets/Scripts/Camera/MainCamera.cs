@@ -4,12 +4,11 @@ using System.Collections;
 public class MainCamera : MonoBehaviour
 {
 	private Transform m_targetLookAt;
-	private Vector3 m_cameraRelativePosition; // relative to targetLookAt
+	[SerializeField] private Vector3 m_cameraRelativePosition; // relative to targetLookAt
 
 	void Start()
 	{
 		InitTargetLookAt();
-		SetCameraRelativePosition(new Vector3(-15.0f, 5.0f, -15.0f));
     }
 
 	void LateUpdate()
