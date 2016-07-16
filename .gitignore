@@ -6,6 +6,7 @@ sysinfo.txt
 *.stackdump
 
 [Ee]xported[Oo]bj/
+.vs/
 *.userprefs
 *.pidb
 *.suo
